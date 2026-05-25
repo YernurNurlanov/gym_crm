@@ -1,2 +1,0 @@
-1,John,Smith,John.Smith,pass123456,true,CARDIO
-2,Mike,Brown,Mike.Brown,pass654321,true,STRENGTH

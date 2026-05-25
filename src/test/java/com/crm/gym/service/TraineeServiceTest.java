@@ -1,29 +1,47 @@
 package com.crm.gym.service;
 
-import com.crm.gym.dao.TraineeDao;
 import com.crm.gym.entity.Trainee;
+import com.crm.gym.entity.Trainer;
+import com.crm.gym.entity.Training;
+import com.crm.gym.entity.TrainingType;
+import com.crm.gym.repository.TraineeRepository;
+import com.crm.gym.repository.TrainerRepository;
+import com.crm.gym.util.CredentialGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class TraineeServiceTest {
 
-    private TraineeDao traineeDao;
+    private TraineeRepository traineeRepository;
+
+    private TrainerRepository trainerRepository;
+
+    private CredentialGenerator credentialGenerator;
 
     private TraineeService traineeService;
 
     @BeforeEach
     void setUp() {
 
-        traineeDao = mock(TraineeDao.class);
+        traineeRepository = mock(TraineeRepository.class);
 
-        traineeService = new TraineeService();
+        trainerRepository = mock(TrainerRepository.class);
 
-        traineeService.setTraineeDao(traineeDao);
+        credentialGenerator = mock(CredentialGenerator.class);
+
+        traineeService = new TraineeService(
+                traineeRepository,
+                trainerRepository,
+                credentialGenerator
+        );
     }
 
     @Test
@@ -31,20 +49,33 @@ class TraineeServiceTest {
 
         Trainee trainee = new Trainee();
 
-        trainee.setUserId(1L);
+        trainee.setFirstName("John");
 
-        when(traineeDao.create(trainee))
-                .thenReturn(trainee);
+        trainee.setLastName("Doe");
 
-        Trainee created =
+        Trainee savedTrainee = new Trainee();
+
+        savedTrainee.setUserId(1L);
+
+        when(credentialGenerator.generateUniqueUsername("John", "Doe"))
+                .thenReturn("John.Doe");
+
+        when(credentialGenerator.generatePassword())
+                .thenReturn("pswd123");
+
+        when(traineeRepository.save(trainee))
+                .thenReturn(savedTrainee);
+
+        Trainee result =
                 traineeService.createTrainee(trainee);
 
-        assertNotNull(created);
+        assertNotNull(result);
 
-        assertEquals(1L, created.getUserId());
+        assertEquals(1L, result.getUserId());
 
-        verify(traineeDao, times(1))
-                .create(trainee);
+        assertEquals("John.Doe", trainee.getUsername());
+
+        assertEquals("pswd123", trainee.getPassword());
     }
 
     @Test
@@ -54,13 +85,13 @@ class TraineeServiceTest {
 
         trainee.setUserId(1L);
 
-        when(traineeDao.select(1L))
-                .thenReturn(trainee);
+        when(traineeRepository.findById(1L))
+                .thenReturn(Optional.of(trainee));
 
         traineeService.updateTrainee(trainee);
 
-        verify(traineeDao)
-                .update(trainee);
+        verify(traineeRepository, times(1))
+                .save(trainee);
     }
 
     @Test
@@ -70,8 +101,8 @@ class TraineeServiceTest {
 
         trainee.setUserId(1L);
 
-        when(traineeDao.select(1L))
-                .thenReturn(null);
+        when(traineeRepository.findById(1L))
+                .thenReturn(Optional.empty());
 
         RuntimeException exception =
                 assertThrows(
@@ -79,46 +110,52 @@ class TraineeServiceTest {
                         () -> traineeService.updateTrainee(trainee));
 
         assertEquals(
-                "Trainee not found",
+                "Trainer not found",
                 exception.getMessage());
 
-        verify(traineeDao, never())
-                .update(any());
+        verify(traineeRepository, never())
+                .save(any());
     }
 
     @Test
-    void shouldDeleteTrainee() {
+    void shouldChangeTraineePassword() {
 
         Trainee trainee = new Trainee();
 
         trainee.setUserId(1L);
 
-        when(traineeDao.select(1L))
+        when(traineeRepository.findById(1L))
+                .thenReturn(Optional.of(trainee));
+
+        when(traineeRepository.save(trainee))
                 .thenReturn(trainee);
 
-        traineeService.deleteTrainee(1L);
+        Trainee result =
+                traineeService.changeTraineePassword(1L, "newPassword");
 
-        verify(traineeDao)
-                .delete(1L);
+        assertNotNull(result);
+
+        assertEquals("newPassword", trainee.getPassword());
     }
 
     @Test
-    void shouldThrowExceptionWhenDeletingMissingTrainee() {
+    void shouldToggleTraineeStatus() {
 
-        when(traineeDao.select(1L))
-                .thenReturn(null);
+        Trainee trainee = new Trainee();
 
-        RuntimeException exception =
-                assertThrows(
-                        RuntimeException.class,
-                        () -> traineeService.deleteTrainee(1L));
+        trainee.setUserId(1L);
 
-        assertEquals(
-                "Trainee not found",
-                exception.getMessage());
+        trainee.setActive(false);
 
-        verify(traineeDao, never())
-                .delete(any());
+        when(traineeRepository.findById(1L))
+                .thenReturn(Optional.of(trainee));
+
+        traineeService.toggleTraineeStatus(1L);
+
+        assertTrue(trainee.isActive());
+
+        verify(traineeRepository, times(1))
+                .save(trainee);
     }
 
     @Test
@@ -128,29 +165,133 @@ class TraineeServiceTest {
 
         trainee.setUserId(1L);
 
-        when(traineeDao.select(1L))
-                .thenReturn(trainee);
+        when(traineeRepository.findById(1L))
+                .thenReturn(Optional.of(trainee));
 
-        Trainee selected =
+        Optional<Trainee> result =
                 traineeService.selectTrainee(1L);
 
-        assertEquals(trainee, selected);
+        assertTrue(result.isPresent());
+
+        assertEquals(trainee, result.get());
     }
 
     @Test
-    void shouldSelectAllTrainees() {
+    void shouldDeleteTrainee() {
 
-        List<Trainee> trainees =
-                List.of(
-                        new Trainee(),
-                        new Trainee());
+        Trainee trainee = new Trainee();
 
-        when(traineeDao.selectAll())
-                .thenReturn(trainees);
+        trainee.setUsername("Alex.Brown");
 
-        List<Trainee> result =
-                traineeService.selectAllTrainees();
+        when(traineeRepository.findByUsername("Alex.Brown"))
+                .thenReturn(Optional.of(trainee));
+
+        traineeService.deleteTrainee("Alex.Brown");
+
+        verify(traineeRepository, times(1))
+                .delete(trainee);
+    }
+
+    @Test
+    void shouldGetTraineeTrainings() {
+
+        Trainee trainee = new Trainee();
+
+        Trainer trainer = new Trainer();
+
+        Date from = new Date();
+
+        Date to = new Date();
+
+        TrainingType type = new TrainingType();
+
+        List<Training> trainings =
+                List.of(new Training());
+
+        when(traineeRepository.findByUsername("alex"))
+                .thenReturn(Optional.of(trainee));
+
+        when(trainerRepository.findByUsername("ivan"))
+                .thenReturn(Optional.of(trainer));
+
+        when(traineeRepository.getTrainings(trainee, from, to, "alex", type))
+                .thenReturn(trainings);
+
+        List<Training> result =
+                traineeService.getTraineeTrainings("alex", from, to, "ivan", type);
+
+        assertNotNull(result);
+
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenGetTrainingsWithMissingTrainee() {
+
+        when(traineeRepository.findByUsername("missing"))
+                .thenReturn(Optional.empty());
+
+        RuntimeException exception =
+                assertThrows(
+                        RuntimeException.class,
+                        () -> traineeService.getTraineeTrainings("missing", null, null, "ivan", null));
+
+        assertEquals(
+                "Trainee not found",
+                exception.getMessage());
+    }
+
+    @Test
+    void shouldUpdateTraineeTrainers() {
+
+        Trainee trainee = new Trainee();
+
+        trainee.setUsername("alex");
+
+        trainee.setTrainers(new ArrayList<>());
+
+        List<String> trainerUsernames =
+                List.of("ivan", "petr");
+
+        List<Trainer> newTrainers =
+                List.of(new Trainer(), new Trainer());
+
+        when(traineeRepository.findByUsername("alex"))
+                .thenReturn(Optional.of(trainee));
+
+        when(trainerRepository.findByUsernames(trainerUsernames))
+                .thenReturn(newTrainers);
+
+        when(traineeRepository.save(trainee))
+                .thenReturn(trainee);
+
+        List<Trainer> result =
+                traineeService.updateTraineeTrainers("alex", trainerUsernames);
+
+        assertNotNull(result);
 
         assertEquals(2, result.size());
+
+        verify(traineeRepository, times(1))
+                .save(trainee);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUpdateTrainersWithMissingTrainee() {
+
+        List<String> usernames =
+                List.of("ivan");
+
+        when(traineeRepository.findByUsername("missing"))
+                .thenReturn(Optional.empty());
+
+        IllegalArgumentException exception =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> traineeService.updateTraineeTrainers("missing", usernames));
+
+        assertEquals(
+                "Trainee not found: missing",
+                exception.getMessage());
     }
 }

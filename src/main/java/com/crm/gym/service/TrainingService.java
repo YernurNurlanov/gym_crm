@@ -1,48 +1,36 @@
 package com.crm.gym.service;
 
-import com.crm.gym.dao.TrainingDao;
 import com.crm.gym.entity.Training;
+import com.crm.gym.repository.TrainingRepository;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class TrainingService {
 
-    @Autowired
-    private TrainingDao trainingDao;
+    private final TrainingRepository trainingRepository;
 
-    public void setTrainingDao(TrainingDao trainingDao) {
-        this.trainingDao = trainingDao;
+    public TrainingService(TrainingRepository trainingRepository) {
+        this.trainingRepository = trainingRepository;
     }
 
     private static final Logger logger =
             LoggerFactory.getLogger(TrainingService.class);
 
-    public Training createTraining(Training training) {
+    public Training createTraining(@Valid Training training) {
         logger.info(
-                "Creating training '{}' for trainee={} with trainer={}",
+                "Creating training '{}' for with trainer={}",
                 training.getTrainingName(),
-                training.getTraineeId(),
-                training.getTrainerId());
+                training.getTrainer().getUserId());
 
-        training = trainingDao.create(training);
+        training = trainingRepository.save(training);
 
         logger.info("Training created with id={}",
                 training.getTrainingId());
 
         return training;
-    }
-
-    public Training selectTraining(Long id) {
-        return trainingDao.select(id);
-    }
-
-    public List<Training> selectAllTrainings() {
-        return trainingDao.selectAll();
     }
 
 }

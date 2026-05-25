@@ -1,18 +1,41 @@
 package com.crm.gym.entity;
 
-import java.time.LocalDate;
+import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+@Entity
+@Table(name = "trainees")
 public class Trainee extends User {
 
-    private LocalDate dateOfBirth;
+    @Column
+    private Date dateOfBirth;
 
+    @Column
     private String address;
 
-    public LocalDate getDateOfBirth() {
+    @ManyToMany
+    @JoinTable(
+            name = "trainee_trainers",
+            joinColumns = @JoinColumn(name = "trainee_id"),
+            inverseJoinColumns = @JoinColumn(name = "trainer_id")
+    )
+    private List<Trainer> trainers = new ArrayList<>();
+
+    @OneToMany(
+            mappedBy = "trainee",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<Training> trainings = new ArrayList<>();
+
+    public Date getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(LocalDate dateOfBirth) {
+    public void setDateOfBirth(Date dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -22,6 +45,22 @@ public class Trainee extends User {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public List<Trainer> getTrainers() {
+        return trainers;
+    }
+
+    public void setTrainers(List<Trainer> trainers) {
+        this.trainers = trainers;
+    }
+
+    public List<Training> getTrainings() {
+        return trainings;
+    }
+
+    public void setTrainings(List<Training> trainings) {
+        this.trainings = trainings;
     }
 
     @Override

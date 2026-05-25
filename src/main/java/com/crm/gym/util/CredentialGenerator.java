@@ -1,9 +1,8 @@
 package com.crm.gym.util;
 
-import com.crm.gym.dao.TraineeDao;
-import com.crm.gym.dao.TrainerDao;
 import com.crm.gym.entity.User;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.crm.gym.repository.TraineeRepository;
+import com.crm.gym.repository.TrainerRepository;
 import org.springframework.stereotype.Component;
 
 import java.security.SecureRandom;
@@ -21,38 +20,20 @@ public class CredentialGenerator {
 
     private final SecureRandom random = new SecureRandom();
 
-    private TraineeDao traineeDao;
+    private final TraineeRepository traineeRepository;
 
-    private TrainerDao trainerDao;
+    private final TrainerRepository trainerRepository;
 
-    @Autowired
-    public void setTraineeDao(TraineeDao traineeDao) {
-        this.traineeDao = traineeDao;
-    }
-
-    @Autowired
-    public void setTrainerDao(TrainerDao trainerDao) {
-        this.trainerDao = trainerDao;
-    }
-
-    private String generateUsername(String firstName,
-                                   String lastName,
-                                   int serialNumber) {
-
-        String baseUsername = firstName + "." + lastName;
-
-        if (serialNumber == 0) {
-            return baseUsername;
-        }
-
-        return baseUsername + serialNumber;
+    public CredentialGenerator(TraineeRepository traineeRepository, TrainerRepository trainerRepository) {
+        this.traineeRepository = traineeRepository;
+        this.trainerRepository = trainerRepository;
     }
 
     public String generateUniqueUsername(String firstName, String lastName) {
 
         Set<String> existingUsernames = Stream.concat(
-                trainerDao.selectAll().stream().map(User::getUsername),
-                traineeDao.selectAll().stream().map(User::getUsername)
+                trainerRepository.findAll().stream().map(User::getUsername),
+                traineeRepository.findAll().stream().map(User::getUsername)
         ).collect(Collectors.toSet());
 
         int serialNumber = 0;
@@ -71,6 +52,17 @@ public class CredentialGenerator {
 
             serialNumber++;
         }
+    }
+
+    private String generateUsername(String firstName, String lastName, int serialNumber) {
+
+        String baseUsername = firstName + "." + lastName;
+
+        if (serialNumber == 0) {
+            return baseUsername;
+        }
+
+        return baseUsername + serialNumber;
     }
 
     public String generatePassword() {

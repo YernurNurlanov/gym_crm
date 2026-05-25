@@ -1,7 +1,7 @@
 package com.crm.gym.util;
 
-import com.crm.gym.dao.TraineeDao;
-import com.crm.gym.dao.TrainerDao;
+import com.crm.gym.repository.TraineeRepository;
+import com.crm.gym.repository.TrainerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,15 +15,11 @@ public class CredentialGeneratorTest {
     @BeforeEach
     void setUp() {
 
-        TrainerDao trainerDao = mock(TrainerDao.class);
+        TrainerRepository trainerRepository = mock(TrainerRepository.class);
 
-        TraineeDao traineeDao = mock(TraineeDao.class);
+        TraineeRepository traineeRepository = mock(TraineeRepository.class);
 
-        credentialGenerator = new CredentialGenerator();
-
-        credentialGenerator.setTrainerDao(trainerDao);
-
-        credentialGenerator.setTraineeDao(traineeDao);
+        credentialGenerator = new CredentialGenerator(traineeRepository, trainerRepository);
     }
 
     @Test

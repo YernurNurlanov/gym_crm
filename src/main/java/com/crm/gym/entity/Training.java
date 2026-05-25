@@ -1,22 +1,55 @@
 package com.crm.gym.entity;
 
-import java.time.LocalDate;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 
+import java.util.Date;
+
+@Entity
+@Table(name = "trainings")
 public class Training {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long trainingId;
 
-    private Long trainerId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "trainee_id")
+    private Trainee trainee;
 
-    private Long traineeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "trainer_id")
+    private Trainer trainer;
 
-    private String trainingName;
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "training_type_id")
     private TrainingType trainingType;
 
-    private LocalDate trainingDate;
+    @Column(nullable = false)
+    @NotEmpty(message = "Training name must not be empty")
+    private String trainingName;
 
+    @Column(nullable = false)
+    private Date trainingDate;
+
+    @Column(nullable = false)
     private Integer trainingDuration;
+
+    public Trainee getTrainee() {
+        return trainee;
+    }
+
+    public void setTrainee(Trainee trainee) {
+        this.trainee = trainee;
+    }
+
+    public Trainer getTrainer() {
+        return trainer;
+    }
+
+    public void setTrainer(Trainer trainer) {
+        this.trainer = trainer;
+    }
 
     public Long getTrainingId() {
         return trainingId;
@@ -24,30 +57,6 @@ public class Training {
 
     public void setTrainingId(Long trainingId) {
         this.trainingId = trainingId;
-    }
-
-    public Long getTrainerId() {
-        return trainerId;
-    }
-
-    public void setTrainerId(Long trainerId) {
-        this.trainerId = trainerId;
-    }
-
-    public Long getTraineeId() {
-        return traineeId;
-    }
-
-    public void setTraineeId(Long traineeId) {
-        this.traineeId = traineeId;
-    }
-
-    public String getTrainingName() {
-        return trainingName;
-    }
-
-    public void setTrainingName(String trainingName) {
-        this.trainingName = trainingName;
     }
 
     public TrainingType getTrainingType() {
@@ -58,11 +67,19 @@ public class Training {
         this.trainingType = trainingType;
     }
 
-    public LocalDate getTrainingDate() {
+    public String getTrainingName() {
+        return trainingName;
+    }
+
+    public void setTrainingName(String trainingName) {
+        this.trainingName = trainingName;
+    }
+
+    public Date getTrainingDate() {
         return trainingDate;
     }
 
-    public void setTrainingDate(LocalDate trainingDate) {
+    public void setTrainingDate(Date trainingDate) {
         this.trainingDate = trainingDate;
     }
 
@@ -78,8 +95,8 @@ public class Training {
     public String toString() {
         return "Training{" +
                 "trainingId=" + trainingId +
-                ", trainerId=" + trainerId +
-                ", traineeId=" + traineeId +
+                ", trainerId=" + trainer.getUserId() +
+                ", traineeId=" + trainee.getUserId() +
                 ", trainingName='" + trainingName + '\'' +
                 ", trainingType=" + trainingType +
                 ", trainingDate=" + trainingDate +

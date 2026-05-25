@@ -1,102 +1,64 @@
 package com.crm.gym.service;
 
-import com.crm.gym.dao.TrainingDao;
+import com.crm.gym.entity.Trainer;
 import com.crm.gym.entity.Training;
-import com.crm.gym.entity.TrainingType;
+import com.crm.gym.repository.TrainingRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.time.LocalDate;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class TrainingServiceTest {
 
-    private TrainingDao trainingDao;
+    private TrainingRepository trainingRepository;
 
     private TrainingService trainingService;
 
     @BeforeEach
     void setUp() {
 
-        trainingDao = mock(TrainingDao.class);
+        trainingRepository = mock(TrainingRepository.class);
 
-        trainingService = new TrainingService();
-
-        trainingService.setTrainingDao(trainingDao);
+        trainingService = new TrainingService(trainingRepository);
     }
 
     @Test
     void shouldCreateTraining() {
 
+        Trainer trainer = new Trainer();
+
+        trainer.setUserId(10L);
+
         Training training = new Training();
 
-        training.setTrainingId(1L);
-        training.setTrainerId(10L);
-        training.setTraineeId(20L);
-        training.setTrainingName("Morning Cardio");
-        training.setTrainingType(TrainingType.CARDIO);
-        training.setTrainingDate(LocalDate.now());
-        training.setTrainingDuration(60);
+        training.setTrainingName("Powerlifting");
 
-        when(trainingDao.create(training))
-                .thenReturn(training);
+        training.setTrainer(trainer);
 
-        Training created =
+        Training savedTraining = new Training();
+
+        savedTraining.setTrainingId(1L);
+
+        savedTraining.setTrainingName("Powerlifting");
+
+        savedTraining.setTrainer(trainer);
+
+        when(trainingRepository.save(training))
+                .thenReturn(savedTraining);
+
+        Training result =
                 trainingService.createTraining(training);
 
-        assertNotNull(created);
+        assertNotNull(result);
 
-        assertEquals(
-                1L,
-                created.getTrainingId());
+        assertEquals(1L, result.getTrainingId());
 
-        assertEquals(
-                "Morning Cardio",
-                created.getTrainingName());
+        assertEquals("Powerlifting", result.getTrainingName());
 
-        verify(trainingDao, times(1))
-                .create(training);
-    }
+        assertEquals(10L, result.getTrainer().getUserId());
 
-    @Test
-    void shouldSelectTraining() {
-
-        Training training = new Training();
-
-        training.setTrainingId(1L);
-
-        when(trainingDao.select(1L))
-                .thenReturn(training);
-
-        Training selected =
-                trainingService.selectTraining(1L);
-
-        assertEquals(training, selected);
-
-        verify(trainingDao)
-                .select(1L);
-    }
-
-    @Test
-    void shouldSelectAllTrainings() {
-
-        List<Training> trainings =
-                List.of(
-                        new Training(),
-                        new Training());
-
-        when(trainingDao.selectAll())
-                .thenReturn(trainings);
-
-        List<Training> result =
-                trainingService.selectAllTrainings();
-
-        assertEquals(2, result.size());
-
-        verify(trainingDao)
-                .selectAll();
+        verify(trainingRepository, times(1))
+                .save(training);
     }
 }
