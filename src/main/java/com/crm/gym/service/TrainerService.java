@@ -5,6 +5,7 @@ import com.crm.gym.entity.Trainer;
 import com.crm.gym.entity.Training;
 import com.crm.gym.repository.TraineeRepository;
 import com.crm.gym.repository.TrainerRepository;
+import com.crm.gym.repository.TrainingRepository;
 import com.crm.gym.util.CredentialGenerator;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -21,11 +22,13 @@ public class TrainerService {
     private final TrainerRepository trainerRepository;
     private final CredentialGenerator credentialGenerator;
     private final TraineeRepository traineeRepository;
+    private final TrainingRepository trainingRepository;
 
-    public TrainerService(TrainerRepository trainerRepository, CredentialGenerator credentialGenerator, TraineeRepository traineeRepository) {
+    public TrainerService(TrainerRepository trainerRepository, CredentialGenerator credentialGenerator, TraineeRepository traineeRepository, TrainingRepository trainingRepository) {
         this.trainerRepository = trainerRepository;
         this.credentialGenerator = credentialGenerator;
         this.traineeRepository = traineeRepository;
+        this.trainingRepository = trainingRepository;
     }
 
     private static final Logger logger =
@@ -104,7 +107,7 @@ public class TrainerService {
             throw new RuntimeException("Trainee not found");
         }
 
-        return trainerRepository.getTrainings(trainer.get(), from, to, traineeUsername);
+        return trainingRepository.findTrainerTrainings(trainerUsername, from, to, traineeUsername);
     }
 
     public Optional<Trainer> selectTrainer(Long id) {
@@ -120,7 +123,7 @@ public class TrainerService {
     }
 
     public List<Trainer> getTrainersNotAssignedToTrainee(String username) {
-        return trainerRepository.getTrainersNotAssignedToTrainee(username);
+        return trainerRepository.findActiveTrainersNotAssignedToTrainee(username);
     }
 
 }

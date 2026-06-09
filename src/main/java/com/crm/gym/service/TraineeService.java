@@ -6,6 +6,7 @@ import com.crm.gym.entity.Training;
 import com.crm.gym.entity.TrainingType;
 import com.crm.gym.repository.TraineeRepository;
 import com.crm.gym.repository.TrainerRepository;
+import com.crm.gym.repository.TrainingRepository;
 import com.crm.gym.util.CredentialGenerator;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -23,11 +24,13 @@ public class TraineeService {
     private final TraineeRepository traineeRepository;
     private final TrainerRepository trainerRepository;
     private final CredentialGenerator credentialGenerator;
+    private final TrainingRepository trainingRepository;
 
-    public TraineeService(TraineeRepository traineeRepository, TrainerRepository trainerRepository, CredentialGenerator credentialGenerator) {
+    public TraineeService(TraineeRepository traineeRepository, TrainerRepository trainerRepository, CredentialGenerator credentialGenerator, TrainingRepository trainingRepository) {
         this.traineeRepository = traineeRepository;
         this.trainerRepository = trainerRepository;
         this.credentialGenerator = credentialGenerator;
+        this.trainingRepository = trainingRepository;
     }
 
     private static final Logger logger =
@@ -56,7 +59,7 @@ public class TraineeService {
                 traineeRepository.findById(trainee.getUserId());
 
         if (existing.isEmpty()) {
-            throw new RuntimeException("Trainer not found");
+            throw new RuntimeException("Trainee not found");
         }
 
         traineeRepository.save(trainee);
@@ -69,7 +72,7 @@ public class TraineeService {
             trainee.get().setPassword(newPassword);
             return traineeRepository.save(trainee.get());
         } else {
-            throw new RuntimeException("Trainer not found");
+            throw new RuntimeException("Trainee not found");
         }
     }
 
@@ -121,7 +124,7 @@ public class TraineeService {
             throw new RuntimeException("Trainer not found");
         }
 
-        return traineeRepository.getTrainings(trainee.get(), from, to, traineeUsername, trainingType);
+        return trainingRepository.findTraineeTrainings(traineeUsername,from, to, trainerUsername, trainingType);
     }
 
     public Optional<Trainee> selectTraineeByUsername(String name) {
@@ -139,7 +142,7 @@ public class TraineeService {
         Trainee trainee = traineeRepository.findByUsername(traineeUsername)
                 .orElseThrow(() -> new IllegalArgumentException("Trainee not found: " + traineeUsername));
 
-        List<Trainer> newTrainers = trainerRepository.findByUsernames(trainerUsernames);
+        List<Trainer> newTrainers = trainerRepository.findByUsernameIn(trainerUsernames);
 
         trainee.getTrainers().clear();
         trainee.getTrainers().addAll(newTrainers);

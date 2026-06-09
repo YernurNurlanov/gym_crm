@@ -51,8 +51,6 @@ class GymFacadeTest {
         );
     }
 
-    // Authentication operations tests
-
     @Test
     void shouldDelegateAuthenticate() {
 
@@ -76,8 +74,6 @@ class GymFacadeTest {
         verify(authenticationService, times(1))
                 .logout();
     }
-
-    // Trainer operations tests
 
     @Test
     void shouldDelegateCreateTrainer() {
@@ -211,8 +207,6 @@ class GymFacadeTest {
         assertEquals(1, result.size());
     }
 
-    // Trainee operations tests
-
     @Test
     void shouldDelegateCreateTrainee() {
 
@@ -334,8 +328,6 @@ class GymFacadeTest {
         assertEquals(1, result.size());
     }
 
-    // Training operations tests
-
     @Test
     void shouldDelegateCreateTraining() {
 
@@ -349,8 +341,6 @@ class GymFacadeTest {
 
         assertEquals(training, result);
     }
-
-    // Training Type operations tests
 
     @Test
     void shouldDelegateGetTrainingTypeById() {

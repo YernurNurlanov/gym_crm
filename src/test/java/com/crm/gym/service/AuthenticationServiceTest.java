@@ -2,11 +2,11 @@ package com.crm.gym.service;
 
 import com.crm.gym.config.SecurityContext;
 import com.crm.gym.entity.User;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.TypedQuery;
+import com.crm.gym.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -14,110 +14,74 @@ import static org.mockito.Mockito.*;
 class AuthenticationServiceTest {
 
     private SecurityContext securityContext;
-
-    private EntityManager em;
-
-    private TypedQuery<User> typedQuery;
-
+    private UserRepository userRepository;
     private AuthenticationService authenticationService;
 
     @BeforeEach
     void setUp() {
-
         securityContext = mock(SecurityContext.class);
+        userRepository = mock(UserRepository.class);
 
-        em = mock(EntityManager.class);
-
-        typedQuery = mock(TypedQuery.class);
-
-        authenticationService = new AuthenticationService(securityContext, em);
+        authenticationService = new AuthenticationService(
+                securityContext,
+                userRepository
+        );
     }
 
     @Test
     void shouldAuthenticateValidUser() {
 
         User user = new User();
-
         user.setUsername("test.user");
-
         user.setPassword("securePassword");
 
-        when(em.createQuery("SELECT u FROM User u WHERE u.username = :username", User.class))
-                .thenReturn(typedQuery);
-
-        when(typedQuery.setParameter("username", "test.user"))
-                .thenReturn(typedQuery);
-
-        when(typedQuery.getSingleResult())
-                .thenReturn(user);
+        when(userRepository.findByUsername("test.user"))
+                .thenReturn(Optional.of(user));
 
         boolean result =
                 authenticationService.authenticate("test.user", "securePassword");
 
         assertTrue(result);
 
-        verify(securityContext, times(1))
-                .login("test.user");
+        verify(securityContext).login("test.user");
     }
 
     @Test
-    void shouldNotAuthenticateWithWrongPassword() {
+    void shouldNotAuthenticateWrongPassword() {
 
         User user = new User();
-
         user.setUsername("test.user");
-
         user.setPassword("securePassword");
 
-        when(em.createQuery("SELECT u FROM User u WHERE u.username = :username", User.class))
-                .thenReturn(typedQuery);
-
-        when(typedQuery.setParameter("username", "test.user"))
-                .thenReturn(typedQuery);
-
-        when(typedQuery.getSingleResult())
-                .thenReturn(user);
+        when(userRepository.findByUsername("test.user"))
+                .thenReturn(Optional.of(user));
 
         boolean result =
                 authenticationService.authenticate("test.user", "wrongPassword");
 
         assertFalse(result);
 
-        verify(securityContext, never())
-                .login(any());
+        verify(securityContext, never()).login(any());
     }
 
     @Test
-    void shouldThrowExceptionWhenUserNotFound() {
+    void shouldReturnFalseWhenUserNotFound() {
 
-        when(em.createQuery("SELECT u FROM User u WHERE u.username = :username", User.class))
-                .thenReturn(typedQuery);
+        when(userRepository.findByUsername("unknown.user"))
+                .thenReturn(Optional.empty());
 
-        when(typedQuery.setParameter("username", "unknown.user"))
-                .thenReturn(typedQuery);
+        boolean result =
+                authenticationService.authenticate("unknown.user", "password");
 
-        when(typedQuery.getSingleResult())
-                .thenThrow(new NoResultException());
+        assertFalse(result);
 
-        RuntimeException exception =
-                assertThrows(
-                        RuntimeException.class,
-                        () -> authenticationService.authenticate("unknown.user", "password"));
-
-        assertEquals(
-                "User not found",
-                exception.getMessage());
-
-        verify(securityContext, never())
-                .login(any());
+        verify(securityContext, never()).login(any());
     }
 
     @Test
     void shouldLogout() {
-
         authenticationService.logout();
 
-        verify(securityContext, times(1))
-                .logout();
+        verify(securityContext).logout();
     }
 }

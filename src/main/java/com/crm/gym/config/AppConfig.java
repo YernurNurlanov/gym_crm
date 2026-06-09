@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManagerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -20,6 +21,7 @@ import java.util.Properties;
 
 @Configuration
 @ComponentScan("com.crm.gym")
+@EnableJpaRepositories("com.crm.gym.repository")
 @PropertySource("classpath:application.properties")
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
