@@ -1,7 +1,6 @@
 package com.crm.gym.repository;
 
 import com.crm.gym.entity.Training;
-import com.crm.gym.entity.TrainingType;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -18,29 +17,30 @@ public interface TrainingRepository
     List<Training> findAll();
 
     @Query("""
-        SELECT t
-        FROM Training t
-        WHERE t.trainee.username = :username
-        AND (:from IS NULL OR t.trainingDate >= :from)
-        AND (:to IS NULL OR t.trainingDate <= :to)
-        AND (:trainerUsername IS NULL
-             OR t.trainer.username = :trainerUsername)
-        AND (:trainingType IS NULL
-             OR t.trainingType = :trainingType)
-    """)
+    SELECT t
+    FROM Training t
+    WHERE t.trainee.username = :username
+    AND (:from IS NULL OR t.date >= :from)
+    AND (:to IS NULL OR t.date <= :to)
+    AND (:trainerUsername IS NULL
+         OR t.trainer.username = :trainerUsername)
+    AND (:trainingTypeId IS NULL
+         OR t.trainingType.id = :trainingTypeId)
+""")
     List<Training> findTraineeTrainings(
             @Param("username") String username,
             @Param("from") Date from,
             @Param("to") Date to,
             @Param("trainerUsername") String trainerUsername,
-            @Param("trainingType") TrainingType trainingType);
+            @Param("trainingTypeId") Long trainingTypeId
+    );
 
     @Query("""
         SELECT t
         FROM Training t
         WHERE t.trainer.username = :username
-        AND (:from IS NULL OR t.trainingDate >= :from)
-        AND (:to IS NULL OR t.trainingDate <= :to)
+        AND (:from IS NULL OR t.date >= :from)
+        AND (:to IS NULL OR t.date <= :to)
         AND (:traineeUsername IS NULL
              OR t.trainee.username = :traineeUsername)
     """)

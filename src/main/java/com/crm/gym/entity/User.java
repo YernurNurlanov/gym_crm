@@ -12,13 +12,14 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "user_id")
     private Long userId;
 
-    @Column(nullable = false)
+    @Column(name = "first_name", nullable = false)
     @NotEmpty(message = "Firstname can not be empty")
     private String firstName;
 
-    @Column(nullable = false)
+    @Column(name = "last_name",nullable = false)
     @NotEmpty(message = "Lastname can not be empty")
     private String lastName;
 
@@ -29,7 +30,7 @@ public class User {
     @Length(min = 10, max = 10, message = "Password must contain exactly 10 characters")
     private String password;
 
-    @Column(nullable = false)
+    @Column(name = "is_active", nullable = false)
     @NotNull(message = "isActive field can not be empty")
     private boolean isActive;
 

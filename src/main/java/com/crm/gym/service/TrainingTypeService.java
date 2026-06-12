@@ -4,7 +4,7 @@ import com.crm.gym.entity.TrainingType;
 import com.crm.gym.repository.TrainingTypeRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.List;
 
 @Service
 public class TrainingTypeService {
@@ -15,7 +15,7 @@ public class TrainingTypeService {
         this.trainingTypeRepository = trainingTypeRepository;
     }
 
-    public Optional<TrainingType> getTrainingTypeById(long id) {
-        return trainingTypeRepository.findById(id);
+    public List<TrainingType> getAllTrainingTypes() {
+        return trainingTypeRepository.findAll();
     }
 }
