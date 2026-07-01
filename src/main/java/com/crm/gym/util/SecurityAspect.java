@@ -1,34 +1,77 @@
 package com.crm.gym.util;
 
-import com.crm.gym.config.SecurityContext;
+import com.crm.gym.dto.LoginRequest;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
+
+import com.crm.gym.exception.AuthenticationException;
+import com.crm.gym.service.AuthenticationService;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.context.request.*;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 @Aspect
 @Component
 public class SecurityAspect {
 
-    private final SecurityContext securityContext;
+    private final AuthenticationService authenticationService;
 
-    public SecurityAspect(SecurityContext securityContext) {
-        this.securityContext = securityContext;
+    public SecurityAspect(
+            AuthenticationService authenticationService) {
+
+        this.authenticationService =
+                authenticationService;
     }
 
-    @Pointcut("execution(* com.crm.gym.GymFacade.*(..))")
-    public void allFacadeMethods() {}
+    @Before("@annotation(AuthRequired)")
+    public void authenticateRequest() {
 
-    @Pointcut("execution(* com.crm.gym.GymFacade.createTrainer(..)) " +
-            "|| execution(* com.crm.gym.GymFacade.createTrainee(..)) " +
-            "|| execution(* com.crm.gym.GymFacade.authenticate(..))")
-    public void createProfileMethods() {}
+        String base64Credentials = getString();
 
-    @Before("allFacadeMethods() && !createProfileMethods()")
-    public void checkAuthentication() {
-        if (!securityContext.isAuthenticated()) {
-            throw new SecurityException("Authentication required! Please log in first.");
+        String credentials =
+                new String(
+                        Base64.getDecoder()
+                                .decode(base64Credentials),
+                        StandardCharsets.UTF_8);
+
+        String[] values =
+                credentials.split(":", 2);
+
+        if (values.length != 2) {
+            throw new AuthenticationException(
+                    "Invalid Authorization header");
         }
-        System.out.println("[Security] Check passed for user: " + securityContext.getCurrentUsername());
+
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setUsername(values[0]);
+        loginRequest.setPassword(values[1]);
+
+        authenticationService.authenticate(loginRequest);
+    }
+
+    private static String getString() {
+        ServletRequestAttributes attributes =
+                (ServletRequestAttributes)
+                        RequestContextHolder
+                                .getRequestAttributes();
+
+        assert attributes != null;
+        HttpServletRequest request =
+                attributes.getRequest();
+
+        String authHeader =
+                request.getHeader("Authorization");
+
+        if (authHeader == null ||
+                !authHeader.startsWith("Basic ")) {
+
+            throw new AuthenticationException(
+                    "Missing Authorization header");
+        }
+
+        return authHeader.substring(6);
     }
 }

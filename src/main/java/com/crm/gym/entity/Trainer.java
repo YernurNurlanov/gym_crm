@@ -47,7 +47,7 @@ public class Trainer extends User {
     public String toString() {
         return "Trainer{" +
                 super.toString() +
-                ", specialization=" + (specialization != null ? specialization.getTrainingTypeId() : "null") +
+                ", specialization=" + (specialization != null ? specialization.getId() : "null") +
                 '}';
     }
 }

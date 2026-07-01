@@ -11,7 +11,7 @@ public class Training {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long trainingId;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trainee_id")
@@ -27,13 +27,13 @@ public class Training {
 
     @Column(nullable = false)
     @NotEmpty(message = "Training name must not be empty")
-    private String trainingName;
+    private String name;
 
     @Column(nullable = false)
-    private Date trainingDate;
+    private Date date;
 
     @Column(nullable = false)
-    private Integer trainingDuration;
+    private Integer duration;
 
     public Trainee getTrainee() {
         return trainee;
@@ -51,12 +51,12 @@ public class Training {
         this.trainer = trainer;
     }
 
-    public Long getTrainingId() {
-        return trainingId;
+    public Long getId() {
+        return id;
     }
 
-    public void setTrainingId(Long trainingId) {
-        this.trainingId = trainingId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public TrainingType getTrainingType() {
@@ -67,40 +67,40 @@ public class Training {
         this.trainingType = trainingType;
     }
 
-    public String getTrainingName() {
-        return trainingName;
+    public String getName() {
+        return name;
     }
 
-    public void setTrainingName(String trainingName) {
-        this.trainingName = trainingName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public Date getTrainingDate() {
-        return trainingDate;
+    public Date getDate() {
+        return date;
     }
 
-    public void setTrainingDate(Date trainingDate) {
-        this.trainingDate = trainingDate;
+    public void setDate(Date date) {
+        this.date = date;
     }
 
-    public Integer getTrainingDuration() {
-        return trainingDuration;
+    public Integer getDuration() {
+        return duration;
     }
 
-    public void setTrainingDuration(Integer trainingDuration) {
-        this.trainingDuration = trainingDuration;
+    public void setDuration(Integer duration) {
+        this.duration = duration;
     }
 
     @Override
     public String toString() {
         return "Training{" +
-                "trainingId=" + trainingId +
+                "trainingId=" + id +
                 ", trainerId=" + trainer.getUserId() +
                 ", traineeId=" + trainee.getUserId() +
-                ", trainingName='" + trainingName + '\'' +
+                ", trainingName='" + name + '\'' +
                 ", trainingType=" + trainingType +
-                ", trainingDate=" + trainingDate +
-                ", trainingDuration=" + trainingDuration +
+                ", trainingDate=" + date +
+                ", trainingDuration=" + duration +
                 '}';
     }
 }

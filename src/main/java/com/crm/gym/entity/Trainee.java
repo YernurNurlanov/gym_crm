@@ -10,7 +10,7 @@ import java.util.List;
 @Table(name = "trainees")
 public class Trainee extends User {
 
-    @Column
+    @Column(name = "date_of_birth")
     private Date dateOfBirth;
 
     @Column

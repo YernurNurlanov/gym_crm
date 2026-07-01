@@ -8,16 +8,16 @@ public class TrainingType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long trainingTypeId;
+    private Long id;
 
     @Column(nullable = false)
-    private String trainingTypeName;
+    private String name;
 
-    public String getTrainingTypeName() {
-        return trainingTypeName;
+    public String getName() {
+        return name;
     }
 
-    public Long getTrainingTypeId() {
-        return trainingTypeId;
+    public Long getId() {
+        return id;
     }
 }
