@@ -28,13 +28,15 @@ public class TrainerService {
     private final TraineeRepository traineeRepository;
     private final TrainingRepository trainingRepository;
     private final TrainingTypeRepository trainingTypeRepository;
+    private final MetricsService metricsService;
 
-    public TrainerService(TrainerRepository trainerRepository, CredentialGenerator credentialGenerator, TraineeRepository traineeRepository, TrainingRepository trainingRepository, TrainingTypeRepository trainingTypeRepository) {
+    public TrainerService(TrainerRepository trainerRepository, CredentialGenerator credentialGenerator, TraineeRepository traineeRepository, TrainingRepository trainingRepository, TrainingTypeRepository trainingTypeRepository, MetricsService metricsService) {
         this.trainerRepository = trainerRepository;
         this.credentialGenerator = credentialGenerator;
         this.traineeRepository = traineeRepository;
         this.trainingRepository = trainingRepository;
         this.trainingTypeRepository = trainingTypeRepository;
+        this.metricsService = metricsService;
     }
 
     @Transactional
@@ -56,6 +58,7 @@ public class TrainerService {
         trainer.setPassword(credentialGenerator.generatePassword());
 
         trainer = trainerRepository.save(trainer);
+        metricsService.trainerCreated();
 
         RegistrationResponse response = new RegistrationResponse();
         response.setUsername(trainer.getUsername());
@@ -200,6 +203,22 @@ public class TrainerService {
         if (trainer.isPresent()) {
             Trainer trainerEntity = trainer.get();
             trainerEntity.setActive(request.isActive());
+            trainerRepository.save(trainerEntity);
+
+            return ResponseEntity.ok().build();
+
+        } else {
+            throw new NotFoundException("Trainer with username " + request.getUsername() + " not found");
+        }
+    }
+
+    @Transactional
+    public ResponseEntity<Void> setTrainerHealth(TrainerIsSickRequest request) {
+
+        Optional<Trainer> trainer = trainerRepository.findByUsername(request.getUsername());
+        if (trainer.isPresent()) {
+            Trainer trainerEntity = trainer.get();
+            trainerEntity.setSick(request.isSick());
             trainerRepository.save(trainerEntity);
 
             return ResponseEntity.ok().build();

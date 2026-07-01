@@ -25,13 +25,13 @@ public class TrainerController {
     }
 
     @AuthRequired
-    @GetMapping("/trainer")
+    @GetMapping()
     public TrainerDTO getTrainer(@RequestParam String username) {
         return trainerService.getTrainer(username);
     }
 
     @AuthRequired
-    @PutMapping("/trainer")
+    @PutMapping("")
     public UpdateTrainerResponse updateTrainer(@RequestBody @Valid UpdateTrainerRequest request) {
         return trainerService.updateTrainer(request);
     }
@@ -49,14 +49,20 @@ public class TrainerController {
     }
 
     @AuthRequired
-    @PostMapping("/trainer/trainings")
+    @PostMapping("/trainings")
     public List<TrainingDTO> getTrainerTrainings(@RequestBody @Valid TrainerTrainingsRequest request) {
         return trainerService.getTrainerTrainings(request);
     }
 
     @AuthRequired
-    @PatchMapping("/trainer/status")
+    @PatchMapping("/status")
     public ResponseEntity<Void> setTrainerStatus(@RequestBody @Valid UserIsActiveRequest request) {
         return trainerService.setTrainerStatus(request);
+    }
+
+    @AuthRequired
+    @PatchMapping("/health")
+    public ResponseEntity<Void> setTrainerHealth(@RequestBody @Valid TrainerIsSickRequest request) {
+        return trainerService.setTrainerHealth(request);
     }
 }

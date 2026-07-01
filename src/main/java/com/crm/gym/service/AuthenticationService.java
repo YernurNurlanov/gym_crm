@@ -16,9 +16,11 @@ import java.util.Optional;
 public class AuthenticationService {
 
     private final UserRepository userRepository;
+    private final MetricsService metricsService;
 
-    public AuthenticationService(UserRepository userRepository) {
+    public AuthenticationService(UserRepository userRepository, MetricsService metricsService) {
         this.userRepository = userRepository;
+        this.metricsService = metricsService;
     }
 
     @Transactional
@@ -28,6 +30,7 @@ public class AuthenticationService {
 
         if (user.isPresent()) {
             if (user.get().getPassword().equals(credentials.getPassword())) {
+                metricsService.loginCreated();
                 return ResponseEntity.ok().build();
             }
 

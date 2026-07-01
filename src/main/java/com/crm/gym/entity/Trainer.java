@@ -13,6 +13,9 @@ public class Trainer extends User {
     @JoinColumn(name = "specialization_id")
     private TrainingType specialization;
 
+    @Column(name = "is_sick")
+    private boolean isSick;
+
     @ManyToMany(mappedBy = "trainers")
     private List<Trainee> trainees = new ArrayList<>();
 
@@ -25,6 +28,14 @@ public class Trainer extends User {
 
     public void setSpecialization(TrainingType specialization) {
         this.specialization = specialization;
+    }
+
+    public boolean isSick() {
+        return isSick;
+    }
+
+    public void setSick(boolean sick) {
+        isSick = sick;
     }
 
     public List<Trainee> getTrainees() {
