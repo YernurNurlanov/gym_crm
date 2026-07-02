@@ -12,6 +12,7 @@ import com.crm.gym.repository.TrainingRepository;
 import com.crm.gym.repository.TrainingTypeRepository;
 import com.crm.gym.util.CredentialGenerator;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,14 +30,16 @@ public class TrainerService {
     private final TrainingRepository trainingRepository;
     private final TrainingTypeRepository trainingTypeRepository;
     private final MetricsService metricsService;
+    private final PasswordEncoder passwordEncoder;
 
-    public TrainerService(TrainerRepository trainerRepository, CredentialGenerator credentialGenerator, TraineeRepository traineeRepository, TrainingRepository trainingRepository, TrainingTypeRepository trainingTypeRepository, MetricsService metricsService) {
+    public TrainerService(TrainerRepository trainerRepository, CredentialGenerator credentialGenerator, TraineeRepository traineeRepository, TrainingRepository trainingRepository, TrainingTypeRepository trainingTypeRepository, MetricsService metricsService, PasswordEncoder passwordEncoder) {
         this.trainerRepository = trainerRepository;
         this.credentialGenerator = credentialGenerator;
         this.traineeRepository = traineeRepository;
         this.trainingRepository = trainingRepository;
         this.trainingTypeRepository = trainingTypeRepository;
         this.metricsService = metricsService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -55,14 +58,16 @@ public class TrainerService {
         }
 
         trainer.setUsername(credentialGenerator.generateUniqueUsername(trainer.getFirstName(), trainer.getLastName()));
-        trainer.setPassword(credentialGenerator.generatePassword());
+
+        String password = credentialGenerator.generatePassword();
+        trainer.setPassword(passwordEncoder.encode(password));
 
         trainer = trainerRepository.save(trainer);
         metricsService.trainerCreated();
 
         RegistrationResponse response = new RegistrationResponse();
         response.setUsername(trainer.getUsername());
-        response.setPassword(trainer.getPassword());
+        response.setPassword(password);
 
         return response;
     }

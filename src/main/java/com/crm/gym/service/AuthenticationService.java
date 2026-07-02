@@ -7,6 +7,7 @@ import com.crm.gym.exception.AuthenticationException;
 import com.crm.gym.exception.NotFoundException;
 import com.crm.gym.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,10 +18,12 @@ public class AuthenticationService {
 
     private final UserRepository userRepository;
     private final MetricsService metricsService;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthenticationService(UserRepository userRepository, MetricsService metricsService) {
+    public AuthenticationService(UserRepository userRepository, MetricsService metricsService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.metricsService = metricsService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -29,7 +32,7 @@ public class AuthenticationService {
         Optional<User> user = userRepository.findByUsername(credentials.getUsername());
 
         if (user.isPresent()) {
-            if (user.get().getPassword().equals(credentials.getPassword())) {
+            if (passwordEncoder.matches(credentials.getPassword(), user.get().getPassword())) {
                 metricsService.loginCreated();
                 return ResponseEntity.ok().build();
             }
@@ -46,8 +49,8 @@ public class AuthenticationService {
         Optional<User> user = userRepository.findByUsername(request.getUsername());
 
         if (user.isPresent()) {
-            if (user.get().getPassword().equals(request.getOldPassword())) {
-                user.get().setPassword(request.getNewPassword());
+            if (passwordEncoder.matches(request.getOldPassword(), user.get().getPassword())) {
+                user.get().setPassword(passwordEncoder.encode(request.getNewPassword()));
                 userRepository.save(user.get());
                 return ResponseEntity.ok().build();
             }
