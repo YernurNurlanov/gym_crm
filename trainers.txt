@@ -1,0 +1,5 @@
+1,John,Smith,John.Smith,ldb5hmT9sb,true,YOGA
+2,Mike,Brown,Mike.Brown,pass654321,true,STRENGTH
+3,John,Smith,John.Smith1,CvY8GkRxB0,true,YOGA
+4,John,Smith,John.Smith2,4IV62bKgls,true,CARDIO
+5,John,Smith,John.Smith3,Szh0kP2H9U,true,CARDIO
