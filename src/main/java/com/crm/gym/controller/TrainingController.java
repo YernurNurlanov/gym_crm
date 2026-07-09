@@ -1,9 +1,7 @@
 package com.crm.gym.controller;
 
 import com.crm.gym.dto.AddTrainingRequest;
-import com.crm.gym.entity.Training;
 import com.crm.gym.service.TrainingService;
-import com.crm.gym.util.AuthRequired;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,8 +19,7 @@ public class TrainingController {
         this.trainingService = trainingService;
     }
 
-    @AuthRequired
-    @PostMapping("training")
+    @PostMapping()
     public ResponseEntity<Void> addTraining(@RequestBody @Valid AddTrainingRequest request) {
         return trainingService.addTraining(request);
     }

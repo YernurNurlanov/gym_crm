@@ -2,7 +2,6 @@ package com.crm.gym.controller;
 
 import com.crm.gym.entity.TrainingType;
 import com.crm.gym.service.TrainingTypeService;
-import com.crm.gym.util.AuthRequired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,7 +18,6 @@ public class TrainingTypeController {
         this.trainingTypeService = trainingTypeService;
     }
 
-    @AuthRequired
     @GetMapping
     public List<TrainingType> getAllTrainingTypes() {
         return trainingTypeService.getAllTrainingTypes();

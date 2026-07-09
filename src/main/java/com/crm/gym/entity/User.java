@@ -4,11 +4,17 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED)
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,13 +32,12 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false, length = 10)
-    @Length(min = 10, max = 10, message = "Password must contain exactly 10 characters")
+    @Column(nullable = false)
     private String password;
 
     @Column(name = "is_active", nullable = false)
     @NotNull(message = "isActive field can not be empty")
-    private boolean isActive;
+    private boolean isActive = true;
 
     public Long getUserId() {
         return userId;
@@ -88,5 +93,39 @@ public class User {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", username='" + username + '\'';
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+
+        if (this instanceof Trainer) {
+            return List.of(new SimpleGrantedAuthority("ROLE_TRAINER"));
+        }
+
+        if (this instanceof Trainee) {
+            return List.of(new SimpleGrantedAuthority("ROLE_TRAINEE"));
+        }
+
+        return List.of();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return isActive;
     }
 }

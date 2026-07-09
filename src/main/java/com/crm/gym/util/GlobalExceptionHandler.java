@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import com.crm.gym.exception.LockedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -58,6 +59,20 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
+                .body(response);
+    }
+
+    @ExceptionHandler(LockedException.class)
+    public ResponseEntity<ErrorResponse> handleLocked(LockedException ex) {
+
+        ErrorResponse response =
+                new ErrorResponse(
+                        ex.getMessage(),
+                        HttpStatus.LOCKED.value(),
+                        LocalDateTime.now());
+
+        return ResponseEntity
+                .status(HttpStatus.LOCKED)
                 .body(response);
     }
 
