@@ -30,20 +30,15 @@ public class JwtService {
     public String generateToken(User user) {
 
         return Jwts.builder()
-
                 .setSubject(user.getUsername())
-
                 .setIssuedAt(new Date())
-
                 .setExpiration(
                         new Date(
                                 System.currentTimeMillis()
                                         + expiration))
-
                 .signWith(
                         getSigningKey(),
                         SignatureAlgorithm.HS256)
-
                 .compact();
     }
 
@@ -64,4 +59,14 @@ public class JwtService {
         return username.equals(user.getUsername());
     }
 
+    public String generateServiceToken() {
+
+        return Jwts.builder()
+                .setSubject("gym-crm")
+                .claim("role", "SERVICE")
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(getSigningKey())
+                .compact();
+    }
 }

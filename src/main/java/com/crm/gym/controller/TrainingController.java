@@ -4,10 +4,7 @@ import com.crm.gym.dto.AddTrainingRequest;
 import com.crm.gym.service.TrainingService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/trainings")
@@ -22,5 +19,10 @@ public class TrainingController {
     @PostMapping()
     public ResponseEntity<Void> addTraining(@RequestBody @Valid AddTrainingRequest request) {
         return trainingService.addTraining(request);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTraining(@PathVariable Long id) {
+        return trainingService.deleteTraining(id);
     }
 }

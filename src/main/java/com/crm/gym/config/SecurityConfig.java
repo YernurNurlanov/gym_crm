@@ -112,8 +112,8 @@ public class SecurityConfig implements WebMvcConfigurer {
                 )
                 .authorizeHttpRequests(auth -> auth
 
-                        .requestMatchers("/trainers/**").hasRole("TRAINER")
-                        .requestMatchers("/trainees/**").hasRole("TRAINEE")
+//                        .requestMatchers("/trainers/**").hasRole("TRAINER")
+//                        .requestMatchers("/trainees/**").hasRole("TRAINEE")
                         .requestMatchers(
                                 "/trainers/register",
                                 "/trainees/register",

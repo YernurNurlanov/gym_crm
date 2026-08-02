@@ -4,6 +4,7 @@ import com.crm.gym.dto.ErrorResponse;
 import com.crm.gym.dto.ValidationErrorResponse;
 import com.crm.gym.exception.AuthenticationException;
 import com.crm.gym.exception.NotFoundException;
+import com.crm.gym.exception.TrainerWorkloadUnavailableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -77,8 +78,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ValidationErrorResponse>
-    handleValidation(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ValidationErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
 
         Map<String, String> errors = new HashMap<>();
 
@@ -101,6 +101,20 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .badRequest()
+                .body(response);
+    }
+
+    @ExceptionHandler(TrainerWorkloadUnavailableException.class)
+    public ResponseEntity<ErrorResponse> handleTrainerServiceUnavailable(TrainerWorkloadUnavailableException ex) {
+
+        ErrorResponse response =
+                new ErrorResponse(
+                        ex.getMessage(),
+                        HttpStatus.SERVICE_UNAVAILABLE.value(),
+                        LocalDateTime.now());
+
+        return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body(response);
     }
 
