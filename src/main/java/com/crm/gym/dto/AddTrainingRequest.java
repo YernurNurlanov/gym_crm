@@ -16,7 +16,7 @@ public class AddTrainingRequest {
     @NotEmpty(message = "Training name can not be empty")
     private String trainingName;
 
-    @NotEmpty(message = "Training date can not be empty")
+    @NotNull(message = "Training date can not be empty")
     private Date trainingDate;
 
     @NotNull(message = "Training duration can not be empty")
@@ -34,7 +34,7 @@ public class AddTrainingRequest {
         return trainingName;
     }
 
-    public @NotEmpty(message = "Training date can not be empty") Date getTrainingDate() {
+    public @NotNull(message = "Training date can not be empty") Date getTrainingDate() {
         return trainingDate;
     }
 

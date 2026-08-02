@@ -2,7 +2,6 @@ package com.crm.gym.controller;
 
 import com.crm.gym.dto.*;
 import com.crm.gym.service.TraineeService;
-import com.crm.gym.util.AuthRequired;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,32 +23,27 @@ public class TraineeController {
         return traineeService.createTrainee(request);
     }
 
-    @AuthRequired
-    @GetMapping("/trainee")
+    @GetMapping()
     public TraineeDTO getTrainee(@RequestParam String username) {
         return traineeService.getTrainee(username);
     }
 
-    @AuthRequired
-    @PutMapping("/trainee")
+    @PutMapping()
     public UpdateTraineeResponse updateTrainee(@RequestBody @Valid UpdateTraineeRequest request) {
         return traineeService.updateTrainee(request);
     }
 
-    @AuthRequired
-    @DeleteMapping("/trainee")
+    @DeleteMapping()
     public ResponseEntity<Void> deleteTrainee(@RequestParam String username) {
         return traineeService.deleteTrainee(username);
     }
 
-    @AuthRequired
-    @PostMapping("/trainee/trainings")
+    @PostMapping("/trainings")
     public List<TrainingDTO> getTraineeTrainings(@RequestBody @Valid TraineeTrainingsRequest request) {
         return traineeService.getTraineeTrainings(request);
     }
 
-    @AuthRequired
-    @PatchMapping("/trainee/status")
+    @PatchMapping("/status")
     public ResponseEntity<Void> setTraineeStatus(@RequestBody @Valid UserIsActiveRequest request) {
         return traineeService.setTraineeStatus(request);
     }

@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: trainer-workload-service
+  datasource:
+    url: jdbc:h2:mem:workload-db
+    driver-class-name: org.h2.Driver
+    username: admin
+    password: admin
+
+  h2:
+    console:
+      enabled: true
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+    show-sql: true
+
+server:
+  port: 8081
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+jwt:
+  secret: b85795fb550cb9b671c6a7abed6d3285d8023e66ab1ad2698ab19dfc8b3c5c70

@@ -11,6 +11,7 @@ import com.crm.gym.repository.TrainingRepository;
 import com.crm.gym.util.CredentialGenerator;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,12 +27,14 @@ public class TraineeService {
     private final TrainerRepository trainerRepository;
     private final CredentialGenerator credentialGenerator;
     private final TrainingRepository trainingRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public TraineeService(TraineeRepository traineeRepository, TrainerRepository trainerRepository, CredentialGenerator credentialGenerator, TrainingRepository trainingRepository) {
+    public TraineeService(TraineeRepository traineeRepository, TrainerRepository trainerRepository, CredentialGenerator credentialGenerator, TrainingRepository trainingRepository, PasswordEncoder passwordEncoder) {
         this.traineeRepository = traineeRepository;
         this.trainerRepository = trainerRepository;
         this.credentialGenerator = credentialGenerator;
         this.trainingRepository = trainingRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -45,13 +48,15 @@ public class TraineeService {
         trainee.setAddress(request.getAddress());
 
         trainee.setUsername(credentialGenerator.generateUniqueUsername(trainee.getFirstName(), trainee.getLastName()));
-        trainee.setPassword(credentialGenerator.generatePassword());
+
+        String password = credentialGenerator.generatePassword();
+        trainee.setPassword(passwordEncoder.encode(password));
 
         trainee = traineeRepository.save(trainee);
 
         RegistrationResponse response = new RegistrationResponse();
         response.setUsername(trainee.getUsername());
-        response.setPassword(trainee.getPassword());
+        response.setPassword(password);
 
         return response;
     }

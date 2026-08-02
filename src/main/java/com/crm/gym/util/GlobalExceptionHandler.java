@@ -4,10 +4,12 @@ import com.crm.gym.dto.ErrorResponse;
 import com.crm.gym.dto.ValidationErrorResponse;
 import com.crm.gym.exception.AuthenticationException;
 import com.crm.gym.exception.NotFoundException;
+import com.crm.gym.exception.TrainerWorkloadUnavailableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import com.crm.gym.exception.LockedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -61,9 +63,22 @@ public class GlobalExceptionHandler {
                 .body(response);
     }
 
+    @ExceptionHandler(LockedException.class)
+    public ResponseEntity<ErrorResponse> handleLocked(LockedException ex) {
+
+        ErrorResponse response =
+                new ErrorResponse(
+                        ex.getMessage(),
+                        HttpStatus.LOCKED.value(),
+                        LocalDateTime.now());
+
+        return ResponseEntity
+                .status(HttpStatus.LOCKED)
+                .body(response);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ValidationErrorResponse>
-    handleValidation(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ValidationErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
 
         Map<String, String> errors = new HashMap<>();
 
@@ -86,6 +101,20 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .badRequest()
+                .body(response);
+    }
+
+    @ExceptionHandler(TrainerWorkloadUnavailableException.class)
+    public ResponseEntity<ErrorResponse> handleTrainerServiceUnavailable(TrainerWorkloadUnavailableException ex) {
+
+        ErrorResponse response =
+                new ErrorResponse(
+                        ex.getMessage(),
+                        HttpStatus.SERVICE_UNAVAILABLE.value(),
+                        LocalDateTime.now());
+
+        return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body(response);
     }
 
