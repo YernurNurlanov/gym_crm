@@ -24,10 +24,5 @@ spring:
 server:
   port: 8081
 
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka
-
 jwt:
   secret: b85795fb550cb9b671c6a7abed6d3285d8023e66ab1ad2698ab19dfc8b3c5c70

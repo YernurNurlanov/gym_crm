@@ -5,10 +5,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
+import java.io.Serializable;
 import java.util.Date;
 
 
-public class TrainerWorkloadRequest {
+public class TrainerWorkloadRequest implements Serializable {
 
     @NotBlank
     private String username;
