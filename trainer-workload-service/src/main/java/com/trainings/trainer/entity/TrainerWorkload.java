@@ -1,16 +1,22 @@
 package com.trainings.trainer.entity;
 
+import com.trainings.trainer.dto.YearSummary;
 import jakarta.persistence.*;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
+@Document("trainer_workloads")
+@CompoundIndex(
+        name = "trainer_name_idx",
+        def = "{'firstName':1,'lastName':1}"
+)
 public class TrainerWorkload {
 
     @Id
-    @GeneratedValue
-    private Long id;
+    private String id;
 
     private String username;
 
@@ -20,19 +26,10 @@ public class TrainerWorkload {
 
     private boolean active;
 
-    @OneToMany(
-            mappedBy = "trainer",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
-    private List<MonthSummary> summaries = new ArrayList<>();
+    private List<YearSummary> years = new ArrayList<>();
 
-    public Long getId() {
+    public String getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getUsername() {
@@ -67,11 +64,11 @@ public class TrainerWorkload {
         this.active = active;
     }
 
-    public List<MonthSummary> getSummaries() {
-        return summaries;
+    public List<YearSummary> getYears() {
+        return years;
     }
 
-    public void setSummaries(List<MonthSummary> summaries) {
-        this.summaries = summaries;
+    public void setYears(List<YearSummary> years) {
+        this.years = years;
     }
 }

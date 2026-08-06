@@ -1,15 +1,17 @@
 package com.trainings.trainer.service;
 
+import com.trainings.trainer.dto.YearSummary;
 import com.trainings.trainer.dto.request.TrainerWorkloadRequest;
 import com.trainings.trainer.entity.ActionType;
-import com.trainings.trainer.entity.MonthSummary;
+import com.trainings.trainer.dto.MonthSummary;
 import com.trainings.trainer.entity.TrainerWorkload;
 import com.trainings.trainer.repository.TrainerWorkloadRepository;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.Month;
+import java.time.ZoneId;
 
 @Service
 public class TrainerWorkloadService {
@@ -31,61 +33,31 @@ public class TrainerWorkloadService {
         trainer.setLastName(request.getLastName());
         trainer.setActive(request.isActive());
 
-        int year = request.getTrainingDate().getYear();
-        Month month = Month.of(request.getTrainingDate().getMonth());
+        LocalDate localDate = request.getTrainingDate()
+                .toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
 
-        MonthSummary summary = findMonthSummary(trainer, year, month);
+        int year = localDate.getYear();
+        Month month = localDate.getMonth();
 
-        if (summary == null) {
+        YearSummary yearSummary = findYearSummary(trainer, year);
 
-            summary = new MonthSummary();
-
-            summary.setTrainer(trainer);
-            summary.setCalendarYear(year);
-            summary.setWorkloadMonth(month);
-            summary.setDuration(0);
-
-            trainer.getSummaries().add(summary);
+        if (yearSummary == null) {
+            yearSummary = createYearSummary(year);
+            trainer.getYears().add(yearSummary);
         }
 
-        if (request.getActionType() == ActionType.ADD) {
+        MonthSummary monthSummary = findMonthSummary(yearSummary, month);
 
-            summary.setDuration(
-                    summary.getDuration()
-                            + request.getTrainingDuration());
+        if (monthSummary == null) {
+            monthSummary = createMonthSummary(month);
+            yearSummary.getMonths().add(monthSummary);
         }
-        else {
 
-            int result =
-                    summary.getDuration()
-                            - request.getTrainingDuration();
-
-            if (result < 0) {
-                throw new IllegalArgumentException(
-                        "Monthly workload cannot be negative.");
-            }
-
-            summary.setDuration(result);
-        }
+        updateDuration(monthSummary, request);
 
         repository.save(trainer);
-    }
-
-    public MonthSummary getWorkload(String username, int year, Month month) {
-
-        TrainerWorkload trainer =
-                repository.findByUsername(username)
-                        .orElseThrow(() ->
-                                new EntityNotFoundException(
-                                        "Trainer not found"));
-
-        return trainer.getSummaries()
-                        .stream()
-                        .filter(s ->
-                                s.getCalendarYear() == year &&
-                                        s.getWorkloadMonth() == month)
-                        .findFirst()
-                        .orElse(new MonthSummary(year, month, 0, trainer));
     }
 
     private TrainerWorkload createTrainer(TrainerWorkloadRequest request) {
@@ -100,14 +72,63 @@ public class TrainerWorkloadService {
         return trainer;
     }
 
-    private MonthSummary findMonthSummary(TrainerWorkload trainer, int year, Month month) {
+    private YearSummary findYearSummary(TrainerWorkload trainer, int year) {
 
-        return trainer.getSummaries()
+        return trainer.getYears()
                 .stream()
-                .filter(summary ->
-                        summary.getCalendarYear().equals(year)
-                                && summary.getWorkloadMonth() == month)
+                .filter(y -> y.getCalendarYear() == year)
                 .findFirst()
                 .orElse(null);
+    }
+
+    private MonthSummary findMonthSummary(YearSummary yearSummary, Month month) {
+
+        return yearSummary.getMonths()
+                .stream()
+                .filter(m -> m.getWorkloadMonth() == month)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private YearSummary createYearSummary(int year) {
+
+        YearSummary summary = new YearSummary();
+
+        summary.setCalendarYear(year);
+
+        return summary;
+    }
+
+    private MonthSummary createMonthSummary(Month month) {
+
+        MonthSummary summary = new MonthSummary();
+
+        summary.setWorkloadMonth(month);
+        summary.setDuration(0);
+
+        return summary;
+    }
+
+    private void updateDuration(MonthSummary summary, TrainerWorkloadRequest request) {
+
+        if (request.getActionType() == ActionType.ADD) {
+
+            summary.setDuration(
+                    summary.getDuration()
+                            + request.getTrainingDuration());
+
+            return;
+        }
+
+        int result =
+                summary.getDuration()
+                        - request.getTrainingDuration();
+
+        if (result < 0) {
+            throw new IllegalArgumentException(
+                    "Monthly workload cannot be negative.");
+        }
+
+        summary.setDuration(result);
     }
 }
