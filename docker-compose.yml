@@ -14,5 +14,16 @@ services:
       - db_data:/var/lib/postgresql/data
       - ./init:/docker-entrypoint-initdb.d
 
+  activemq:
+    image: apache/activemq-classic:latest
+    container_name: activemq
+    ports:
+      - "8161:8161"
+      - "61616:61616"
+    volumes:
+      - activemq_data:/opt/activemq/data
+
+
 volumes:
   db_data:
+  activemq_data:
