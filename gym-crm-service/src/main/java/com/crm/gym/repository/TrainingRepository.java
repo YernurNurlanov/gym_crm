@@ -49,4 +49,7 @@ public interface TrainingRepository
             @Param("from") Date from,
             @Param("to") Date to,
             @Param("traineeUsername") String traineeUsername);
+
+
+    List<Training> findAllByTrainer_UsernameOrderByIdDesc(String username);
 }

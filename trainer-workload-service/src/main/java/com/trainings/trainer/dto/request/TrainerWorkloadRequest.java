@@ -58,4 +58,32 @@ public class TrainerWorkloadRequest implements Serializable {
     public @NotNull ActionType getActionType() {
         return actionType;
     }
+
+    public void setActionType(@NotNull ActionType actionType) {
+        this.actionType = actionType;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public void setFirstName(@NotBlank String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(@NotBlank String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setTrainingDate(@NotNull Date trainingDate) {
+        this.trainingDate = trainingDate;
+    }
+
+    public void setTrainingDuration(@Positive Integer trainingDuration) {
+        this.trainingDuration = trainingDuration;
+    }
+
+    public void setUsername(@NotBlank String username) {
+        this.username = username;
+    }
 }
