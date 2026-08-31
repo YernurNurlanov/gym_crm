@@ -1,12 +1,11 @@
 package com.trainings.trainer.service;
 
 import com.trainings.trainer.dto.YearSummary;
-import com.trainings.trainer.dto.request.TrainerWorkloadRequest;
+import com.trainings.trainer.dto.TrainerWorkloadRequest;
 import com.trainings.trainer.entity.ActionType;
 import com.trainings.trainer.dto.MonthSummary;
 import com.trainings.trainer.entity.TrainerWorkload;
 import com.trainings.trainer.repository.TrainerWorkloadRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -22,7 +21,6 @@ public class TrainerWorkloadService {
         this.repository = repository;
     }
 
-    @Transactional
     public void updateWorkload(TrainerWorkloadRequest request) {
 
         TrainerWorkload trainer =

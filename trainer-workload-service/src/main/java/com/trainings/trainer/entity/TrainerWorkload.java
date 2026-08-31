@@ -1,7 +1,7 @@
 package com.trainings.trainer.entity;
 
 import com.trainings.trainer.dto.YearSummary;
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 
