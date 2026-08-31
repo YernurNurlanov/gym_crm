@@ -1,12 +1,9 @@
 package com.trainings.trainer.dto;
 
-import jakarta.persistence.*;
-
 import java.time.Month;
 
 public class MonthSummary {
 
-    @Enumerated(EnumType.STRING)
     private Month workloadMonth;
 
     private Integer duration;

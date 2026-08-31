@@ -3,7 +3,7 @@ package com.trainings.trainer.component;
 import com.trainings.trainer.controller.TrainerWorkloadConsumer;
 import com.trainings.trainer.dto.MonthSummary;
 import com.trainings.trainer.dto.YearSummary;
-import com.trainings.trainer.dto.request.TrainerWorkloadRequest;
+import com.trainings.trainer.dto.TrainerWorkloadRequest;
 import com.trainings.trainer.entity.ActionType;
 import com.trainings.trainer.entity.TrainerWorkload;
 import com.trainings.trainer.repository.TrainerWorkloadRepository;

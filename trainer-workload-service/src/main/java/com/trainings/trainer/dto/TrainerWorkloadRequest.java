@@ -1,4 +1,4 @@
-package com.trainings.trainer.dto.request;
+package com.trainings.trainer.dto;
 
 import com.trainings.trainer.entity.ActionType;
 import jakarta.validation.constraints.NotBlank;

@@ -1,6 +1,6 @@
 package com.trainings.trainer.config;
 
-import com.trainings.trainer.dto.request.TrainerWorkloadRequest;
+import com.trainings.trainer.dto.TrainerWorkloadRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
